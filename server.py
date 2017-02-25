@@ -1,7 +1,7 @@
 from certificateAPI import sign_cert
 from flask import Flask, jsonify, request
 from flask import render_template
-from OpenSSL import SSL
+import os
 
 app = Flask(__name__)
 
@@ -9,11 +9,18 @@ app = Flask(__name__)
 # context.use_privatekey_file('server_key.pem')
 # context.use_certificate_file('server_cert.crt')
 
+from flask import send_from_directory
 
+@app.route('/favicon.ico')
+def favicon():
+    print "favicon from ",app.root_path
+    return send_from_directory(os.path.join(app.root_path, 'templates'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/<name>')
 @app.route('/')
 def main_template(name=None):
+    print name
     if not name:
         name = 'index.html'
     return render_template(name, name=name)
