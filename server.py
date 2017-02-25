@@ -1,12 +1,13 @@
 from certificateAPI import sign_cert
 from flask import Flask, jsonify, request
 from flask import render_template
+from OpenSSL import SSL
 
 app = Flask(__name__)
 
-# context = SSL.Context(SSL.SSLv23_METHOD)
-# context.use_privatekey_file('server_key.key')
-# context.use_certificate_file('server_cert.crt')
+context = SSL.Context(SSL.SSLv23_METHOD)
+context.use_privatekey_file('server_key.key')
+context.use_certificate_file('server_cert.crt')
 
 
 
