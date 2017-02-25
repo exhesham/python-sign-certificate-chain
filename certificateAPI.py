@@ -39,7 +39,7 @@ def mkreq(bits, ca=0, cn="OpenSSL Group", c="UK"):
         extstack.push(ext2)
         x.add_extensions(extstack)
     # self.assertRaises(ValueError, x.sign, pk, 'sha513')
-    x.sign(pk, 'sha1')
+    x.sign(pk, 'sha256')
     assert x.verify(pk)
     pk2 = x.get_pubkey()
     assert x.verify(pk2)
@@ -68,7 +68,7 @@ def create_root_cert():
     cert.set_pubkey(pkey)
     ext = X509.new_extension('basicConstraints', 'CA:TRUE')
     cert.add_ext(ext)
-    cert.sign(pk, 'sha1')
+    cert.sign(pk, 'sha256')
 
     if m2.OPENSSL_VERSION_NUMBER >= 0x0090800fL:
         assert cert.check_ca()
@@ -118,7 +118,7 @@ def create_intermediate_cert(root_pkey=None):
     cert.set_pubkey(pkey)
     ext = X509.new_extension('basicConstraints', 'CA:TRUE')
     cert.add_ext(ext)
-    cert.sign(root_pkey, 'sha1')
+    cert.sign(root_pkey, 'sha256')
     pk.save_key("inter.key", cipher=None)
     cert.save("inter.crt")
     return cert, pk, pkey
@@ -165,7 +165,7 @@ def sign_cert(cn, c, sever_cert=True):
     cert.set_pubkey(pkey)
     ext = X509.new_extension('basicConstraints', 'CA:TRUE')
     cert.add_ext(ext)
-    cert.sign(inter_pkey, 'sha1')
+    cert.sign(inter_pkey, 'sha256')
     return cert, pk, pkey
 
 #create_chain()
