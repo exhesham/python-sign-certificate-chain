@@ -39,4 +39,4 @@ def sign_ca():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8081, ssl_context=('server_cert.crt','server_key.pem'),  threaded=True)
+    app.run(debug=True, port=8081,host="0.0.0.0", ssl_context=('server_cert.crt','server_key.pem'),  threaded=True)
