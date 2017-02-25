@@ -10,6 +10,11 @@ app = Flask(__name__)
 # context.use_certificate_file('server_cert.crt')
 
 from flask import send_from_directory
+@app.route('/image/<name>')
+def image_logo(name):
+    print "log from ",app.root_path
+    return send_from_directory(os.path.join(app.root_path, 'templates'),
+                               name, mimetype='image/vnd.microsoft.icon')
 
 @app.route('/favicon.ico')
 def favicon():
