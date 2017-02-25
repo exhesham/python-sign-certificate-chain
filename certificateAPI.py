@@ -1,8 +1,8 @@
-import OpenSSL
-from OpenSSL._util import lib as _lib, ffi as _ffi
-from OpenSSL.crypto import _new_mem_buf, _bio_to_string, X509
+from OpenSSL.crypto import X509
 import os, time, base64, sys
 from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2, util, BIO
+from OpenSSL import SSL
+
 import M2Crypto
 ##pip install --egg M2CryptoWin32
 ##pip install pyOpenSSL
@@ -13,25 +13,11 @@ root_issuer_cn = "Hesham Authorita"
 intermediate_issuer_c = "IL"
 intermediate_issuer_cn = "Hisham Intermediate Authorita"
 
+context = SSL.Context(SSL.SSLv23_METHOD)
+context.use_privatekey_file('server_key.key')
+context.use_certificate_file('server_cert.crt')
 
-def aux_create_key():
-    bio_priv = _new_mem_buf()
-    res = None
-    helper = OpenSSL.crypto._PassphraseHelper(OpenSSL.crypto.FILETYPE_PEM, None)
 
-    pk = OpenSSL.crypto.PKey()
-    pk.generate_key(OpenSSL.crypto.TYPE_RSA, 4096)
-
-    # Convert from EVP_PKEY type to RSA type
-    rsa_pkey = _lib.EVP_PKEY_get1_RSA(pk._pkey)
-    try:
-        result_code = _lib.PEM_write_bio_RSAPrivateKey(bio_priv, rsa_pkey, _ffi.NULL, _ffi.NULL, 0,
-                                                       helper.callback, helper.callback_args)
-        res = _bio_to_string(bio_priv)
-    except TypeError:
-        print "TypeError happened while generating.."
-        return None
-    return res
 
 
 def callback(*args):
