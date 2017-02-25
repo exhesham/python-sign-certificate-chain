@@ -4,6 +4,11 @@ from flask import render_template
 
 app = Flask(__name__)
 
+# context = SSL.Context(SSL.SSLv23_METHOD)
+# context.use_privatekey_file('server_key.key')
+# context.use_certificate_file('server_cert.crt')
+
+
 
 @app.route('/<name>')
 @app.route('/')

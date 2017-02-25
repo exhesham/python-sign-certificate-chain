@@ -13,11 +13,6 @@ root_issuer_cn = "Hesham Authorita"
 intermediate_issuer_c = "IL"
 intermediate_issuer_cn = "Hisham Intermediate Authorita"
 
-context = SSL.Context(SSL.SSLv23_METHOD)
-context.use_privatekey_file('server_key.key')
-context.use_certificate_file('server_cert.crt')
-
-
 
 
 def callback(*args):
