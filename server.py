@@ -1,5 +1,5 @@
 from certificateAPI import sign_cert
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from flask import render_template
 import os
 
@@ -47,7 +47,7 @@ def sign_ca():
                     'ca_inter':open('inter.crt').read(),
                     'signed_cert': signed_cert.as_pem(),
                     'key': str(key.as_pem(cipher=None))
-                    }), 200
+                    }), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
 if __name__ == '__main__':

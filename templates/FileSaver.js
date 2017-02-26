@@ -71,8 +71,7 @@ var saveAs = saveAs || (function(view) {
 			// if (/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(blob.type)) {
 				// return new Blob([String.fromCharCode(0xFEFF), blob], {type: blob.type});
 			// }
-			// return blob;
-			return new Blob([String.fromCharCode(0xFEFF), blob], {type: blob.type});
+			return blob;
 		}
 		, FileSaver = function(blob, name, no_auto_bom) {
 			if (!no_auto_bom) {
