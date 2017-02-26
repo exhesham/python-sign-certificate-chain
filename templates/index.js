@@ -16,6 +16,14 @@ function send_sign_req(){
 	var l = $('#l').val()
 	var o = $('#o').val()
 	var ou = $('#ou').val()
+	if(!c){
+		alert('please fill country name')
+		return;
+	}
+	if(!cn){
+		alert('please fill common name')
+		return;
+	}
 	data_to_send = {
 				'cn':cn,
 				'c':c,

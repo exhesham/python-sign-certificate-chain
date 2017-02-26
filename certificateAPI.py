@@ -1,44 +1,33 @@
 from OpenSSL.crypto import X509
 import os, time, base64, sys
-from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2, util, BIO
-from OpenSSL import SSL
-
-import M2Crypto
-##pip install --egg M2CryptoWin32
-##pip install pyOpenSSL
-
+from M2Crypto import X509, EVP, RSA, ASN1, m2
 
 root_issuer_c = "IL"
-root_issuer_cn = "Hesham Authorita"
+root_issuer_cn = "Hisham Authoritah"
 intermediate_issuer_c = "IL"
-intermediate_issuer_cn = "Hisham Intermediate Authorita"
-
+intermediate_issuer_cn = "Hisham Intermediate Authoritah"
 
 
 def callback(*args):
     pass
 
 
-def mkreq(bits, ca=0, cn="OpenSSL Group", c="UK"):
+def mkreq(bits, ca=0, cn="exhesham ca group", c="IL"):
     pk = EVP.PKey()
     x = X509.Request()
     rsa = RSA.gen_key(bits, 65537, callback)
     pk.assign_rsa(rsa)
-    rsa = None  # should not be freed here
     x.set_pubkey(pk)
-
     name = x.get_subject()
     name.C = c
     name.CN = cn
     if not ca:
-        # ext1 = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
         ext1 = X509.new_extension('subjectAltName', 'DNS:' + cn)
         ext2 = X509.new_extension('nsComment', 'Hello there')
         extstack = X509.X509_Extension_Stack()
         extstack.push(ext1)
         extstack.push(ext2)
         x.add_extensions(extstack)
-    # self.assertRaises(ValueError, x.sign, pk, 'sha513')
     x.sign(pk, 'sha256')
     assert x.verify(pk)
     pk2 = x.get_pubkey()
@@ -46,8 +35,7 @@ def mkreq(bits, ca=0, cn="OpenSSL Group", c="UK"):
     return x, pk
 
 
-def create_root_cert():
-    req, pk = mkreq(4096, ca=1, cn=root_issuer_cn, c=root_issuer_c)
+def generate_and_sign_cert(req, pk, sign_key, issuer_cn, issuer_c):
     pkey = req.get_pubkey()
     sub = req.get_subject()
     cert = X509.X509()
@@ -62,14 +50,19 @@ def create_root_cert():
     cert.set_not_before(now)
     cert.set_not_after(nowPlusYear)
     issuer = X509.X509_Name()
-    issuer.C = root_issuer_c
-    issuer.CN = root_issuer_cn
+    issuer.C = issuer_c
+    issuer.CN = issuer_cn
     cert.set_issuer(issuer)
     cert.set_pubkey(pkey)
     ext = X509.new_extension('basicConstraints', 'CA:TRUE')
     cert.add_ext(ext)
-    cert.sign(pk, 'sha256')
+    cert.sign(sign_key, 'sha256')
+    return cert, pk, pkey
 
+
+def create_root_cert():
+    req, pk = mkreq(4096, ca=1, cn=root_issuer_cn, c=root_issuer_c)
+    cert, pk, pkey = generate_and_sign_cert(req, pk, sign_key=pk, issuer_cn=root_issuer_cn, issuer_c=root_issuer_c)
     if m2.OPENSSL_VERSION_NUMBER >= 0x0090800fL:
         assert cert.check_ca()
         assert cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1)
@@ -82,49 +75,28 @@ def create_root_cert():
         return None, None, None
         # TODO:self.assertRaises(AttributeError, cert.check_ca)
     cert.save("root.crt")
-    pk.save_key("root.key",cipher=None)
+    pk.save_key("root.key", cipher=None)
     return cert, pk, pkey
-
-
-def test_mkcacert():
-    cacert, pk, pkey = create_root_cert()
-    assert cacert.verify(pkey)
 
 
 def create_intermediate_cert(root_pkey=None):
     if not os.path.exists("root.key"):
         return 1, 'create root certificate'
-    #root_pkey = X509.load_cert("root.key", format=X509.FORMAT_PEM)
     if not root_pkey:
         root_pkey = EVP.load_key("root.key")
     req, pk = mkreq(2048, ca=1, cn=intermediate_issuer_cn, c=intermediate_issuer_c)
-    pkey = req.get_pubkey()
-    sub = req.get_subject()
-    cert = X509.X509()
-    cert.set_serial_number(1)
-    cert.set_version(2)
-    cert.set_subject(sub)
-    t = long(time.time()) + time.timezone
-    now = ASN1.ASN1_UTCTIME()
-    now.set_time(t)
-    nowPlusYear = ASN1.ASN1_UTCTIME()
-    nowPlusYear.set_time(t + 60 * 60 * 24 * 365)
-    cert.set_not_before(now)
-    cert.set_not_after(nowPlusYear)
-    issuer = X509.X509_Name()
-    issuer.C = root_issuer_c
-    issuer.CN = root_issuer_cn
-    cert.set_issuer(issuer)
-    cert.set_pubkey(pkey)
-    ext = X509.new_extension('basicConstraints', 'CA:TRUE')
-    cert.add_ext(ext)
-    cert.sign(root_pkey, 'sha256')
+    cert, pk, pkey = generate_and_sign_cert(req, pk, sign_key=root_pkey, issuer_cn=root_issuer_cn,
+                                            issuer_c=root_issuer_c)
     pk.save_key("inter.key", cipher=None)
     cert.save("inter.crt")
     return cert, pk, pkey
 
 
+
+
+
 def create_chain():
+    '''Create certificate CA chain made of root and intermediate chain'''
     if os.path.exists('root.crt'):
         os.remove('root.crt')
     if os.path.exists('root.key'):
@@ -133,11 +105,11 @@ def create_chain():
         os.remove('inter.crt')
     if os.path.exists('inter.key'):
         os.remove('inter.key')
-    cert, pk, pkey = create_root_cert()
+    create_root_cert()
     create_intermediate_cert()
 
 
-def sign_cert(cn, c, sever_cert=True):
+def sign_cert(cn, c):
     if not os.path.exists("root.crt") \
             or not os.path.exists("root.key") \
             or not os.path.exists("inter.crt") \
@@ -145,33 +117,6 @@ def sign_cert(cn, c, sever_cert=True):
         create_chain()
     inter_pkey = EVP.load_key("inter.key")
     req, pk = mkreq(2048, ca=1, cn=cn, c=c)
-    pkey = req.get_pubkey()
-    sub = req.get_subject()
-    cert = X509.X509()
-    cert.set_serial_number(1)
-    cert.set_version(2)
-    cert.set_subject(sub)
-    t = long(time.time()) + time.timezone
-    now = ASN1.ASN1_UTCTIME()
-    now.set_time(t)
-    nowPlusYear = ASN1.ASN1_UTCTIME()
-    nowPlusYear.set_time(t + 60 * 60 * 24 * 365)
-    cert.set_not_before(now)
-    cert.set_not_after(nowPlusYear)
-    issuer = X509.X509_Name()
-    issuer.C = intermediate_issuer_c
-    issuer.CN = intermediate_issuer_cn
-    cert.set_issuer(issuer)
-    cert.set_pubkey(pkey)
-    ext = X509.new_extension('basicConstraints', 'CA:TRUE')
-    cert.add_ext(ext)
-    cert.sign(inter_pkey, 'sha256')
+    cert, pk, pkey = generate_and_sign_cert(req, pk, sign_key=inter_pkey, issuer_cn=intermediate_issuer_cn,
+                                            issuer_c=intermediate_issuer_c)
     return cert, pk, pkey
-
-#create_chain()
-#create_root_cert()
-# cert.save("root.crt")
-# cert, pk, pkey  = create_intermediate_cert(pk)
-# cert.save("inter.crt")
-# cert, pk, pkey  = sign_cert(pk)
-# cert.save("cert.crt")
