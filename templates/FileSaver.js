@@ -68,10 +68,11 @@ var saveAs = saveAs || (function(view) {
 		, auto_bom = function(blob) {
 			// prepend BOM for UTF-8 XML and text/* types (including HTML)
 			// note: your browser will automatically convert UTF-16 U+FEFF to EF BB BF
-			if (/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(blob.type)) {
-				return new Blob([String.fromCharCode(0xFEFF), blob], {type: blob.type});
-			}
-			return blob;
+			// if (/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(blob.type)) {
+				// return new Blob([String.fromCharCode(0xFEFF), blob], {type: blob.type});
+			// }
+			// return blob;
+			return new Blob([String.fromCharCode(0xFEFF), blob], {type: blob.type});
 		}
 		, FileSaver = function(blob, name, no_auto_bom) {
 			if (!no_auto_bom) {
