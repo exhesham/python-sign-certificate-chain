@@ -39,7 +39,7 @@ There you should fill your certificate details
 # CommandLine
 
 ```
-python certofocateAPI.py --ca --cert --cn localhost
+python certofocateAPI.py --clean  --ca --cert --cn localhost
 ```
 
 The possible flags are:
