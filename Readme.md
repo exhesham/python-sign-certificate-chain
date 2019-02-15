@@ -26,11 +26,18 @@ The script certificateAPI.py can be run manually in order to create the certific
 Go to Environment variables and add the path `C:\Python27\Scripts` to the `PATH` variable
 
 ### install ssl packages
-to be able to install the M2Crypto, you need to first install this c++ package: http://aka.ms/vcpython27
+to be able to install the M2Crypto, you need to first install the c++ compiler for python2.7 package: http://aka.ms/vcpython27
 ```
 apt-get install python-dev
 pip install pyopenssl
-pip install --egg M2Crypto
+# Install M2Crypto
+pip install https://ci.appveyor.com/api/buildjobs/y7yri08k45mn5nlj/artifacts/dist/M2Crypto-0.30.1-cp27-cp27m-win_amd64.whl
+
+```
+
+If you would run the UI, then install flask:
+
+```
 pip install Flask
 ```
 
@@ -48,7 +55,7 @@ There you should fill your certificate details
 # CommandLine
 
 ```
-python certofocateAPI.py --clean  --ca --cert --cn localhost
+python certificateAPI.py --clean  --ca --cert --cn localhost
 ```
 
 The possible flags are:
