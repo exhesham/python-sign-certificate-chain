@@ -5,6 +5,7 @@ this can be noticed mainly with `nodejs`.
 
 # Environment
 You can use the API manually or with command line as depicted below.
+![create cert](./createcert.gif "Create Cert")
 
 ## Run Web Server API
 This project will run a web server. With a WebUI Client you can create and download your certificates.
