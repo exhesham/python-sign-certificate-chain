@@ -26,6 +26,7 @@ The script certificateAPI.py can be run manually in order to create the certific
 Go to Environment variables and add the path `C:\Python27\Scripts` to the `PATH` variable
 
 ### install ssl packages
+to be able to install the M2Crypto, you need to first install this c++ package: http://aka.ms/vcpython27
 ```
 apt-get install python-dev
 pip install pyopenssl
