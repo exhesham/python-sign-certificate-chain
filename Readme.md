@@ -18,6 +18,14 @@ The script certificateAPI.py can be run manually in order to create the certific
 * If the parent chain certificates are available, then the server will use them to sign your certificates.
 
 ## Dependencies
+
+### install pip:
+`curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
+`python get-pip.py`
+
+Go to Environment variables and add the path `C:\Python27\Scripts` to the `PATH` variable
+
+### install ssl packages
 ```
 apt-get install python-dev
 pip install pyopenssl
